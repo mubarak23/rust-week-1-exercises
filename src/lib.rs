@@ -1,19 +1,7 @@
-use std::io::Read;
+use std::io::{Error, Read};
 
-#[derive(Debug)]
-enum Errors {
-    IoError(std::io::Error),
-    HexError(()),
-    TooShort,
-}
 
-impl From<std::io::Error> for Errors {
-    fn from(err: std::io::Error) -> Self {
-        Errors::IoError(err)
-    }
-}
-
-fn read_version_byte(transaction_bytes: &mut &[u8]) -> Result<u32, Errors> {
+fn read_version_byte(transaction_bytes: &mut &[u8]) -> Result<u32, Error> {
     let mut buffer = [0; 4];
     let _ = transaction_bytes.read_exact(&mut buffer); // read exactly 4 bytes from transaction_bytes into the buffer stream;
     Ok(u32::from_le_bytes(buffer)) // converts a 4-byte array (buffer) into a 32-bit unsigned integer (u32) assuming little-endian byte order
@@ -28,13 +16,11 @@ pub fn extract_tx_version(transaction_hex: &str) -> Result<u32, String> {
     if transaction_bytes.len() < 4 {
         return Err("Transaction data too short".to_string());
     }
-    // let  stream_bytes = &transaction_bytes;
+    
     let mut stream_bytes: &[u8] = &transaction_bytes;
     match read_version_byte(&mut stream_bytes) {
         Ok(version) => Ok(version),
-        Err(Errors::IoError(e)) => Err(format!("I/O error reading version: {}", e)),
-        Err(Errors::TooShort) => Err("Transaction data too short".to_string()),
-        Err(Errors::HexError(_)) => Err("Unexpected hex error during version read".to_string()),
+        Err(e) => Err(format!("{}", e)),
     }
-    // todo!()
+  
 }
