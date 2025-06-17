@@ -1,22 +1,15 @@
 use std::io::Read;
-use std::num::ParseIntError;
 
 #[derive(Debug)]
 enum Errors {
     IoError(std::io::Error),
-    HexError(ParseIntError),
-    TooShortError,
+    HexError(()),
+    TooShort,
 }
 
 impl From<std::io::Error> for Errors {
     fn from(err: std::io::Error) -> Self {
         Errors::IoError(err)
-    }
-}
-
-impl From<ParseIntError> for Errors {
-    fn from(err: ParseIntError) -> Self {
-        Errors::HexError(err)
     }
 }
 
@@ -40,7 +33,7 @@ pub fn extract_tx_version(transaction_hex: &str) -> Result<u32, String> {
     match read_version_byte(&mut stream_bytes) {
         Ok(version) => Ok(version),
         Err(Errors::IoError(e)) => Err(format!("I/O error reading version: {}", e)),
-        Err(Errors::TooShortError) => Err("Transaction data too short".to_string()),
+        Err(Errors::TooShort) => Err("Transaction data too short".to_string()),
         Err(Errors::HexError(_)) => Err("Unexpected hex error during version read".to_string()),
     }
     // todo!()
