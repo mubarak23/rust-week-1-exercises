@@ -22,7 +22,7 @@ impl From<ParseIntError> for Errors {
 
 fn read_version_byte(transaction_bytes: &mut &[u8]) -> Result<u32, Errors> {
     let mut buffer = [0; 4];
-   let _ = transaction_bytes.read_exact(&mut buffer); // read exactly 4 bytes from transaction_bytes into the buffer stream;
+    let _ = transaction_bytes.read_exact(&mut buffer); // read exactly 4 bytes from transaction_bytes into the buffer stream;
     Ok(u32::from_le_bytes(buffer)) // converts a 4-byte array (buffer) into a 32-bit unsigned integer (u32) assuming little-endian byte order
 }
 
